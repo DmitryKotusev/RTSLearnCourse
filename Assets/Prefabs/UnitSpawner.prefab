@@ -271,6 +271,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6669897604096571328, guid: 8b36540932b50ae49911068501c2fd97, type: 3}
+      propertyPath: colorRenderers.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6669897604096571328, guid: 8b36540932b50ae49911068501c2fd97, type: 3}
+      propertyPath: colorRenderers.Array.data[0]
+      value: 
+      objectReference: {fileID: 812326714003188491}
     - target: {fileID: 7318793385294369855, guid: 8b36540932b50ae49911068501c2fd97, type: 3}
       propertyPath: sceneId
       value: 0
@@ -370,5 +378,10 @@ PrefabInstance:
 --- !u!4 &4495798028197715827 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6682644790140888260, guid: b33ab7964dfc8dc4e907bebf4d2e3217, type: 3}
+  m_PrefabInstance: {fileID: 7122951315098319799}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &812326714003188491 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7610019785047167164, guid: b33ab7964dfc8dc4e907bebf4d2e3217, type: 3}
   m_PrefabInstance: {fileID: 7122951315098319799}
   m_PrefabAsset: {fileID: 0}

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,6 +11,14 @@ public class RTSNetworkManager : NetworkManager
     {
         base.OnServerAddPlayer(conn);
 
+        RTSPlayer player = conn.identity.GetComponent<RTSPlayer>();
+
+        player.SetTeamColor(new Color(
+            UnityEngine.Random.Range(0f, 1f),
+            UnityEngine.Random.Range(0f, 1f),
+            UnityEngine.Random.Range(0f, 1f)
+        ));
+
         GameObject unitSpawnerInstance = Instantiate(
             unitSpawnerPrefab,
             conn.identity.transform.position,
@@ -23,7 +29,7 @@ public class RTSNetworkManager : NetworkManager
 
     public override void OnServerSceneChanged(string sceneName)
     {
-        if(SceneManager.GetActiveScene().name.StartsWith("Scene_Map"))
+        if (SceneManager.GetActiveScene().name.StartsWith("Scene_Map"))
         {
             GameOverHandler gameOverHandlerInstance = Instantiate(gameOverHandlerPrefab);
 

@@ -5,8 +5,11 @@ using UnityEngine;
 
 public class RTSPlayer : NetworkBehaviour
 {
+    [SerializeField] private LayerMask buildingBlockLayer = new LayerMask();
     [SerializeField] private Building[] buildings = new Building[0];
+    [SerializeField] private float buildingRangeLimit = 5f;
 
+    private Color teamColor = new Color();
     private List<Unit> myUnits = new List<Unit>();
     private List<Building> myBuildings = new List<Building>();
 
@@ -14,6 +17,11 @@ public class RTSPlayer : NetworkBehaviour
     private int resources = 500;
 
     public event Action<int> ClientOnResourcesUpdated;
+
+    public Color GetTeamColor()
+    {
+        return teamColor;
+    }
 
     public int GetResources()
     {
@@ -30,11 +38,29 @@ public class RTSPlayer : NetworkBehaviour
         return myBuildings;
     }
 
-    [Server]
-    public void SetResources(int newResources)
+    public bool CanPlaceBuilding(BoxCollider buildingCollider, Vector3 point)
     {
-        resources = newResources;
+        if (Physics.CheckBox(
+                    point + buildingCollider.center,
+                    buildingCollider.size / 2,
+                    Quaternion.identity,
+                    buildingBlockLayer))
+        {
+            return false;
+        }
+
+        foreach (Building building in myBuildings)
+        {
+            if ((point - building.transform.position).sqrMagnitude
+                <= buildingRangeLimit * buildingRangeLimit)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
+
 
     #region Server
 
@@ -54,6 +80,18 @@ public class RTSPlayer : NetworkBehaviour
         Building.ServerOnBuildingDespawned -= ServerHandleBuildingDespawned;
     }
 
+    [Server]
+    public void SetResources(int newResources)
+    {
+        resources = newResources;
+    }
+
+    [Server]
+    public void SetTeamColor(Color newTeamColor)
+    {
+        teamColor = newTeamColor;
+    }
+
     [Command]
     public void CmdTryPlaceBuilding(int buildingId, Vector3 point)
     {
@@ -70,10 +108,17 @@ public class RTSPlayer : NetworkBehaviour
 
         if (buildingToPlace == null) { return; }
 
+        if (resources < buildingToPlace.GetPrice()) { return; }
+
+        BoxCollider buildingCollider = buildingToPlace.GetComponent<BoxCollider>();
+
+        if (!CanPlaceBuilding(buildingCollider, point)) { return; }
+
         GameObject buildingInstance =
             Instantiate(buildingToPlace.gameObject, point, buildingToPlace.transform.rotation);
 
         NetworkServer.Spawn(buildingInstance, connectionToClient);
+        SetResources(resources - buildingToPlace.GetPrice());
     }
 
     private void ServerHandleUnitSpawned(Unit unit)
